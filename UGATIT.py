@@ -1,25 +1,10 @@
 import time, itertools
 from dataset import ImageFolder
-from torch.utils.data import Dataset
 from torchvision import transforms
 from torch.utils.data import DataLoader
 from networks import *
 from utils import *
-from datasets import load_dataset
 from glob import glob
-
-class CustomDataset(Dataset):
-    def __init__(self, data, transform=None):
-        self.data = data
-        self.transform = transform
-
-    def __getitem__(self, index):
-        if self.transform is not None:
-            img = self.transform(self.data[index]['image'])
-        return img
-
-    def __len__(self):
-        return len(self.data)
 
 class UGATIT(object) :
     def __init__(self, args):
@@ -168,13 +153,13 @@ class UGATIT(object) :
                 real_A, _ = trainA_iter.next()
             except:
                 trainA_iter = iter(self.trainA_loader)
-                real_A = next(trainA_iter)
+                real_A, _ = trainA_iter.next()
 
             try:
                 real_B, _ = trainB_iter.next()
             except:
                 trainB_iter = iter(self.trainB_loader)
-                real_B = next(trainB_iter)
+                real_B, _ = trainB_iter.next()
 
             real_A, real_B = real_A.to(self.device), real_B.to(self.device)
 
@@ -269,13 +254,13 @@ class UGATIT(object) :
                         real_A, _ = trainA_iter.next()
                     except:
                         trainA_iter = iter(self.trainA_loader)
-                        real_A, _ = next(trainA_iter)
+                        real_A, _ = trainA_iter.next()
 
                     try:
                         real_B, _ = trainB_iter.next()
                     except:
                         trainB_iter = iter(self.trainB_loader)
-                        real_B, _ = next(trainB_iter)
+                        real_B, _ = trainB_iter.next()
                     real_A, real_B = real_A.to(self.device), real_B.to(self.device)
 
                     fake_A2B, _, fake_A2B_heatmap = self.genA2B(real_A)
@@ -305,16 +290,16 @@ class UGATIT(object) :
 
                 for _ in range(test_sample_num):
                     try:
-                        real_A, _ = next(testA_iter)
+                        real_A, _ = testA_iter.next()
                     except:
                         testA_iter = iter(self.testA_loader)
-                        real_A, _ = next(testA_iter)
+                        real_A, _ = testA_iter.next()
 
                     try:
-                        real_B, _ = next(testB_iter)
+                        real_B, _ = testB_iter.next()
                     except:
                         testB_iter = iter(self.testB_loader)
-                        real_B, _ = next(testB_iter)
+                        real_B, _ = testB_iter.next()
                     real_A, real_B = real_A.to(self.device), real_B.to(self.device)
 
                     fake_A2B, _, fake_A2B_heatmap = self.genA2B(real_A)
@@ -390,7 +375,7 @@ class UGATIT(object) :
             return
 
         self.genA2B.eval(), self.genB2A.eval()
-        for n, (real_A) in enumerate(self.testA_loader):
+        for n, (real_A, _) in enumerate(self.testA_loader):
             real_A = real_A.to(self.device)
 
             fake_A2B, _, fake_A2B_heatmap = self.genA2B(real_A)
