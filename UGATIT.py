@@ -153,13 +153,13 @@ class UGATIT(object) :
                 real_A, _ = trainA_iter.next()
             except:
                 trainA_iter = iter(self.trainA_loader)
-                real_A, _ = trainA_iter.next()
+                real_A, _ = next(trainA_iter)
 
             try:
                 real_B, _ = trainB_iter.next()
             except:
                 trainB_iter = iter(self.trainB_loader)
-                real_B, _ = trainB_iter.next()
+                real_B, _ = next(trainB_iter)
 
             real_A, real_B = real_A.to(self.device), real_B.to(self.device)
 
